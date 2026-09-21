@@ -21,7 +21,7 @@ description: 音乐技能——读"我喜欢"收藏（纯 API）+ 读"此刻唱�
 
 - `list`（读收藏）：纯 API，✅ 成
 - `play`（副屏发播放/暂停键）：✅ 成，续播上次那首
-- **`pick "歌名"`（挑歌播放）：✅ 成** —— 歌名 → 副屏搜索 → **收键盘** → 点结果。
+- **`pick "歌名"`（挑歌播放）：✅ 成** —— 归位 → 顶部搜索 → 灌歌名 → 点结果（坐标现读）。
   API 那条路仍被平台侧滑块验证码堵着，但**副屏上点得动**，所以走 UI。
 - `stop`（收副屏）：✅
 
@@ -29,7 +29,7 @@ description: 音乐技能——读"我喜欢"收藏（纯 API）+ 读"此刻唱�
 
 ```bash
 bash ~/.claude/scripts/kugou.sh list              # 列"我喜欢"收藏（歌名，纯 API）
-bash ~/.claude/scripts/kugou.sh pick "歌名"       # ★挑一首放：搜索 → 收键盘 → 点结果
+bash ~/.claude/scripts/kugou.sh pick "歌名"       # ★挑一首放：归位 → 搜索 → 点结果
 bash ~/.claude/scripts/kugou.sh play              # 起副屏 + 丢 app + 发播放/暂停键（续播上一首）
 bash ~/.claude/scripts/kugou.sh stop              # 听完了收副屏
 ```

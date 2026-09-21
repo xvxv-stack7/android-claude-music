@@ -291,7 +291,7 @@ bash ~/.claude/scripts/listen-detect.sh    # 这会儿该不该自己放一首�
 
 # 读收藏 / 挑歌 / 放歌
 bash ~/.claude/scripts/kugou.sh list              # 列收藏（纯 API，一次全出）
-bash ~/.claude/scripts/kugou.sh pick "歌名"       # 挑一首放（搜索 → 收键盘 → 点结果）
+bash ~/.claude/scripts/kugou.sh pick "歌名"       # 挑一首放（归位 → 搜索 → 点结果）
 bash ~/.claude/scripts/kugou.sh play              # 续播上次那首
 bash ~/.claude/scripts/kugou.sh stop              # 收副屏
 
