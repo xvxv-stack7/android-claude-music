@@ -65,7 +65,7 @@ except Exception as e:
   # ⚠️ 下面这几个坐标是**别人手机上量的**，你必须自己重量（见 README「在你手机上要改的」）：
   #    我的 / 我喜欢 / 搜索 / 输入法「完成」 / 搜索结果第一行
   pick)
-    Q="$2"
+    Q="${2:-}"
     [ -z "$Q" ] && { echo "用法: kugou.sh pick \"歌名\""; exit 1; }
     NAV_MINE_X="${NAV_MINE_X:-788}"; NAV_MINE_Y="${NAV_MINE_Y:-605}"    # 底部「我的」
     CARD_FAV_X="${CARD_FAV_X:-504}"; CARD_FAV_Y="${CARD_FAV_Y:-470}"    # 「我喜欢」卡片
