@@ -19,11 +19,10 @@ SERIAL="${ADB_SERIAL:-127.0.0.1:5555}"
 ADB="adb -s $SERIAL"
 VD="$SDIR/vd.sh"
 
-[ -z "$LIKE_ID" ] && { echo "先配 MUSIC_LIKE_ID（见 TUTORIAL 第四步）"; exit 1; }
-
 case "${1:-list}" in
   # ── 列出"我喜欢"收藏 ──
   list)
+    [ -z "$LIKE_ID" ] && { echo "先配 MUSIC_LIKE_ID（见 TUTORIAL 第四步）"; exit 1; }
     page="${2:-1}"; pagesize="${3:-100}"
     curl -s -m 25 "$API/playlist/track/all?id=$LIKE_ID&page=$page&pagesize=$pagesize" 2>/dev/null | python3 -c "
 import sys,json
