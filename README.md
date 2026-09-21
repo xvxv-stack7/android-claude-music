@@ -95,6 +95,44 @@ bash <(curl -sL https://gitee.com/xvxv663/android-claude-music/raw/master/instal
 
 ---
 
+## 在你手机上要改的
+
+**每个人的手机都不一样** —— 概率、频率、时间窗、用哪个 App、屏幕上点哪儿，
+全是给你自己调的。下面这些都在文件顶部的变量里（或者 `music.env`），打开就能改：
+
+| 想改什么 | 改哪儿 | 默认 |
+|---|---|---|
+| **用哪个音乐 App** | `music.env` → `MUSIC_PKG` | `com.kugou.android` |
+| **你的歌单** | `music.env` → `MUSIC_LIKE_ID` | 必填，见 TUTORIAL 第四步 |
+| **它自己放歌的概率** | `listen-detect.sh` → `CHANCE` | **2%** |
+| 什么时段才放 | `listen-detect.sh` → `HOUR_FROM` / `HOUR_TO` | 8 ~ 23 点 |
+| 哪些 App 算"她在忙" | `listen-detect.sh` → `ENT_APPS` | 抖音/快手/B站/爱奇艺… |
+| **歌词递话的频率** | `listen-loop.sh` → `GAP_MIN` / `GAP_MAX` | 30 ~ 80 秒（随机） |
+| 一首歌最多聊几句 | `listen-loop.sh` → `MAX_PER_SONG` | 2 |
+| 放完一首多久不再放 | `music_moment.sh` → `MUSIC_COOLDOWN_MIN` | 40 分钟 |
+| 副屏开多大 | `vd.sh dstart 宽 高 dpi` | 1280x720/240 |
+| **副屏上点哪儿** | `vd.sh tap X Y`（每次现给） | 每台机器都不一样 |
+
+### 换成别的音乐 App
+
+```bash
+# 1. 拿包名（把关键词换成你要找的 App）
+adb shell pm list packages | grep -i kugou
+#    → package:com.kugou.android
+
+# 2. 填进 music.env
+MUSIC_PKG=com.kugou.android
+```
+
+⚠️ **换了 App 就得自己量坐标**。每个 App 副屏上的按钮位置都不一样，
+`vd.sh tree` 能读出控件的坐标和文字，`vd.sh shot` 能截图看着量 ——
+**别抄别人博客里的坐标**，那是别人手机的。
+
+> 频率类的东西乘起来看：**轮询跑得越勤 × 概率越高 = 放得越频繁**。
+> 默认 `listen-detect.sh` 几分钟一轮 × 2%，一天大概也就放个一两次。
+
+---
+
 ## 它是怎么做到的
 
 三层。前两层是"听得见、听得懂"，第三层才是这个仓库真正的骨头 —— **主动**。

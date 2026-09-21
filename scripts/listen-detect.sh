@@ -12,6 +12,9 @@
 #
 # 想改成"只报告、放不放由 AI 定"：把最后那段 bash music_moment.sh 去掉，
 # 只留 echo 就行。
+#
+# 下面几个变量都能随便改（概率 / 时间窗 / 哪些 App 算"在忙"）——
+# 完整配置表见 README「在你手机上要改的」。
 
 ADB_SERIAL="${ADB_SERIAL:-127.0.0.1:5555}"
 A="adb -s $ADB_SERIAL shell"
