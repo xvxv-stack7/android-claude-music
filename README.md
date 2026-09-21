@@ -113,7 +113,7 @@ bash <(curl -sL https://gitee.com/xvxv663/android-claude-music/raw/master/instal
 | 一首歌最多聊几句 | `listen-loop.sh` → `MAX_PER_SONG` | 2 |
 | 放完一首多久不再放 | `music_moment.sh` → `MUSIC_COOLDOWN_MIN` | 40 分钟 |
 | 副屏开多大 | `vd.sh dstart 宽 高 dpi` | 1280x720/240 |
-| **挑歌用的坐标** | `kugou.sh` 顶部 5 个变量 | **必须自己量**（tree 读 / shot 看） |
+| **挑歌的搜索入口** | `kugou.sh` 顶部 `SEARCH_X/Y` | 全流程**唯一写死**的坐标，量一下填进去 |
 | **副屏上点哪儿** | `vd.sh tap X Y`（每次现给） | 每台机器都不一样 |
 
 ### 换成别的音乐 App
@@ -349,6 +349,6 @@ MIT —— 拿走用，署名随意。第三方组件版权归各自作者（见
 - [ ] **不止歌词**：把"听到什么"扩展到播客、有声书、视频 —— 同一套时间轴对齐
 - [ ] **情绪感知**：连着听三首慢歌，它该不该问一句"今天怎么了"
 - [x] **挑歌**（2026-09 打通）：说个歌名就能放 —— `kugou.sh pick "歌名"`。
-      API 那条路仍卡平台验证码，走的是**副屏上搜 + 点**那条：搜索 → 收键盘 → 点结果
+      API 那条路仍卡平台验证码，走的是**副屏上搜 + 点**：归位 → 搜索 → 点结果（结果坐标现读）
 
 > 💡 有想法？去 [Issues](https://gitee.com/xvxv663/android-claude-music/issues) 提。
