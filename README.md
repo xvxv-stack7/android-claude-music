@@ -8,9 +8,11 @@
 放歌全程在虚拟副屏上，**不占你的屏**；你没叫它的时候，还会挑一句歌词递过来，跟你聊那一句
 （你耳机里唱到「不然怎么会挑中我呢」的那一刻，它手上就是这一句）。
 
-**没有用任何音乐平台的接口。** 它读的是**系统自己的播放状态**（adb 读 `media_session`）——
-所以你在哪个 App 里放、放的是哪首、播到了第几秒，它都知道；点歌则在**自建的虚拟副屏**上
-像人一样去点。绕开平台、绕开你的屏幕，这两件事是这个仓库的技术底子。
+**它的技术底子在两头。** 读"你在听什么"，它**不问平台** —— 直接读系统自己的播放状态
+（adb 读 `media_session`），所以不管你在哪个 App 里放，它都知道放的是哪首、播到了第几秒。
+点歌也**不走平台接口**，而是在**自建的虚拟副屏**上像人一样去点。
+
+（歌单和歌词是另一条路 —— 走本机的接口服务，见[准备工作](#准备工作)。）
 
 > 🎧 实测走 **酷狗** · 免 Root 免电脑 · AI 跑在手机 Termux 本地 · 放歌走虚拟副屏不占屏
 
@@ -45,8 +47,8 @@
 歌在**虚拟副屏**上放（`am start --display` 丢进自己建的那块屏），声音照常从你耳机出来，
 **你手里这块屏一动不动**。
 
-> 虚拟副屏的根是别人的开源项目（[agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)）；
-> 它卡在 `SecurityException: packageName must match the calling uid`，免 Root 那条路上的坑是我们填的 —— 见[鸣谢](#鸣谢)。
+> 虚拟副屏的根是别人的开源项目（[agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)）——
+> 我们在**免 Root** 的手机上把它跑通了，走过的弯路和改法写在 [TUTORIAL](TUTORIAL.md) 里，见[鸣谢](#鸣谢)。
 
 **💬 你听到哪一句，它知道**
 
@@ -343,7 +345,7 @@ bash ~/.claude/scripts/listen-detect.sh
 
 ## 鸣谢
 
-- **[AcidGr/agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)**（[酸小明](https://github.com/AcidGr)，MIT）—— **虚拟副屏的根**。我们把它搬到了**没有 root** 的手机上跑（走 Shizuku + adb 这条路），也填掉了搬的过程里卡住的那个坑。本仓库 `scripts/vd.sh` 与 `assets/*.dex` 源自这个项目（含我们的修改），**版权归原作者所有**，MIT 许可全文见 `assets/LICENSE-agent-mobile-use`。<br>**项目在持续更新，请以原仓库为准。**
+- **[AcidGr/agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)**（[酸小明](https://github.com/AcidGr)，MIT）—— **虚拟副屏的根**。我们在**没有 root** 的手机上把它跑起来了（走 Shizuku + adb 这条路），过程中改的几处代码都在 `src/` 里。本仓库 `scripts/vd.sh` 与 `assets/*.dex` 源自这个项目（含我们的修改），**版权归原作者所有**，MIT 许可全文见 `assets/LICENSE-agent-mobile-use`。<br>**项目在持续更新，请以原仓库为准。**
 - **[scrcpy](https://github.com/Genymobile/scrcpy)**（rom1v）—— `--new-display` 那条路，以及 `FakeContext` 那个关键解法（Context 上报的包名必须跟调用者 uid 对得上）都是从它那儿学的
 - **[KuGouMusicApi](https://github.com/MakcRe/KuGouMusicApi)**（MakcRe）—— 本机音乐接口服务，读歌单和歌词靠它
 - **[Termux](https://termux.dev/)** —— Android 上的 Linux 终端
