@@ -61,6 +61,38 @@ except Exception as e:
     echo "[音乐] 副屏(display $DID) → $ST  $NM"
     ;;
 
+  # ── 挑一首放：歌名 → 副屏搜索 → ★收键盘 → 点结果 ──
+  # 歌名从哪来：先 `kugou.sh list`（纯 API，一次拿全部收藏歌名），别在副屏上一个个读树。
+  # ⚠️ 下面这几个坐标是**别人手机上量的**，你必须自己重量（见 README「在你手机上要改的」）：
+  #    我的 / 我喜欢 / 搜索 / 输入法「完成」 / 搜索结果第一行
+  pick)
+    Q="$2"
+    [ -z "$Q" ] && { echo "用法: kugou.sh pick \"歌名\""; exit 1; }
+    NAV_MINE_X="${NAV_MINE_X:-788}"; NAV_MINE_Y="${NAV_MINE_Y:-605}"    # 底部「我的」
+    CARD_FAV_X="${CARD_FAV_X:-504}"; CARD_FAV_Y="${CARD_FAV_Y:-470}"    # 「我喜欢」卡片
+    BTN_SRCH_X="${BTN_SRCH_X:-729}"; BTN_SRCH_Y="${BTN_SRCH_Y:-94}"     # 右上「搜索」
+    BTN_DONE_X="${BTN_DONE_X:-1202}"; BTN_DONE_Y="${BTN_DONE_Y:-135}"   # 输入法的「完成」（收键盘）
+    ROW1_X="${ROW1_X:-490}"; ROW1_Y="${ROW1_Y:-237}"                    # 结果第一行的**歌名区**
+    $ADB connect "$SERIAL" &>/dev/null; sleep 1
+    DID=$(bash "$VD" id 2>/dev/null | sed -n 's/.*input→\([0-9]*\).*/\1/p')
+    if [ -z "$DID" ]; then
+      bash "$VD" dstart >/dev/null 2>&1; sleep 3
+      bash "$VD" open "$MUSIC_PKG" >/dev/null 2>&1; sleep 7
+      DID=$(bash "$VD" id 2>/dev/null | sed -n 's/.*input→\([0-9]*\).*/\1/p')
+    fi
+    [ -z "$DID" ] && { echo "[挑歌] 副屏起不来，这次没放"; exit 1; }
+    bash "$VD" tap "$NAV_MINE_X" "$NAV_MINE_Y" >/dev/null 2>&1; sleep 3   # 「我的」
+    bash "$VD" tap "$CARD_FAV_X" "$CARD_FAV_Y" >/dev/null 2>&1; sleep 3   # 「我喜欢」
+    bash "$VD" tap "$BTN_SRCH_X" "$BTN_SRCH_Y" >/dev/null 2>&1; sleep 3   # 「搜索」
+    bash "$VD" type "$Q" >/dev/null 2>&1; sleep 2                         # 灌歌名（结果自动出）
+    $ADB shell input -d "$DID" tap "$BTN_DONE_X" "$BTN_DONE_Y" >/dev/null 2>&1; sleep 2  # ★收键盘
+    # 点结果第一行的**歌名区**（靠左）—— 点行中间容易落到歌手名上，跳进歌手页（踩过）
+    bash "$VD" tap "$ROW1_X" "$ROW1_Y" >/dev/null 2>&1; sleep 5
+    ST=$($ADB shell dumpsys media_session 2>/dev/null | command grep -m1 "state=PlaybackState" | sed -n 's/.*state=\([A-Z]*\)(.*/\1/p')
+    NM=$($ADB shell dumpsys media_session 2>/dev/null | command grep -m1 "description=" | sed 's/.*description=//' | tr -d '\r')
+    echo "[挑歌] $Q → $ST  $NM"
+    ;;
+
   # ── 收副屏(听完了收掉，别白占性能) ──
   stop)
     bash "$VD" dstop 2>&1 | tail -2

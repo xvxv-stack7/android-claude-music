@@ -224,6 +224,30 @@ vd.sh dstop                                # 用完了收屏
 
 ---
 
+## 第七步 · 让它给你挑一首
+
+想听哪首，说一声（或者自己敲）：
+
+```bash
+bash ~/.claude/scripts/kugou.sh pick "歌名"
+```
+
+它自己去副屏上走一圈：`我的` → `我喜欢` → `搜索` → 灌歌名 → **收键盘** → 点结果 —— 歌就放起来了。
+
+**两个坑**：
+
+- **必须收键盘**（点输入法的「完成」按钮）。输入法的提取框盖着整个上半屏（`0,0~1124,270`），
+  不收就**点不动结果行** —— 点哪儿都被输入法吃掉。这一步卡了很久才找到。
+- **坐标得自己量**。`kugou.sh` 顶部那五个坐标，每台机器都不一样。
+  用 `vd.sh tree` 读控件坐标、`vd.sh shot` 截图看着量，量好填进去。**别抄别人的。**
+
+> **为什么不做成纯 API 选歌？** 平台侧的滑块验证码挡着（读到登录、歌单、歌词都没问题，
+> 一到"在线播放某一首"就被拦）。副屏上点虽然笨，但**能成**。
+
+**歌名从哪来**：`kugou.sh list` 一次给你全部收藏的歌名（纯 API），别在副屏上一个个读树。
+
+---
+
 ## 进阶 · 自己编译副屏的 dex
 
 仓库里带的是编译好的（**源自 [AcidGr/agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)，MIT，版权归原作者**）。
@@ -261,10 +285,11 @@ python3 ~/.claude/scripts/lyric_now.py --auto   # 单行，给轮询用（暂停
 bash ~/.claude/scripts/listen-loop.sh      # 此刻唱到哪句 → 递给 AI
 bash ~/.claude/scripts/listen-detect.sh    # 这会儿该不该自己放一首（命中才出声）
 
-# 读收藏 / 放歌
-bash ~/.claude/scripts/kugou.sh list
-bash ~/.claude/scripts/kugou.sh play
-bash ~/.claude/scripts/kugou.sh stop
+# 读收藏 / 挑歌 / 放歌
+bash ~/.claude/scripts/kugou.sh list              # 列收藏（纯 API，一次全出）
+bash ~/.claude/scripts/kugou.sh pick "歌名"       # 挑一首放（搜索 → 收键盘 → 点结果）
+bash ~/.claude/scripts/kugou.sh play              # 续播上次那首
+bash ~/.claude/scripts/kugou.sh stop              # 收副屏
 
 # 副屏
 vd.sh dstart | dstop | id | open <包名> | tree | tap X Y
