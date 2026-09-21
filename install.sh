@@ -88,7 +88,7 @@ fi
 # ── 4. 收尾 ──
 say "装完了。接下来三件事："
 say ""
-say "  ① 起本地音乐接口服务（没装过的话）"
+say "  ① 起本地音乐接口服务（默认是酷狗那套；用别的音乐 App 要另找对应的，见 TUTORIAL 第一步）"
 say "     git clone https://github.com/MakcRe/KuGouMusicApi ~/kugou-music-api"
 say "     cd ~/kugou-music-api && npm install"
 say "     PORT=4000 nohup node index.js > ~/kugou-api.log 2>&1 &"

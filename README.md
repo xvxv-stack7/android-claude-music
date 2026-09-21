@@ -66,7 +66,7 @@
 | adb 回环（AI 的手脚） | [termux-shizuku](https://gitee.com/xvxv663/termux-shizuku) |
 | Node.js（跑本地音乐接口服务） | `pkg install nodejs`，或前两个仓库已带 |
 | Python 3 | Termux 自带 |
-| 一个音乐 App + 你自己的账号 | 本仓库实测用酷狗，接口层可换 |
+| 一个音乐 App + 你自己的账号 | 实测走**酷狗**。换平台要另找**对应的**本地接口服务（见 [第一步](TUTORIAL.md#第一步--装本地音乐接口服务)） |
 
 ## 安装
 
