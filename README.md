@@ -117,7 +117,7 @@ bash <(curl -sL https://gitee.com/xvxv663/android-claude-music/raw/master/instal
 | **你的歌单** | `music.env` → `MUSIC_LIKE_ID` | 必填，见 TUTORIAL 第四步 |
 | **它自己放歌的概率** | `listen-detect.sh` → `CHANCE` | **2%** |
 | 什么时段才放 | `listen-detect.sh` → `HOUR_FROM` / `HOUR_TO` | 8 ~ 23 点 |
-| 哪些 App 算"她在忙" | `listen-detect.sh` → `ENT_APPS` | 抖音/快手/B站/爱奇艺… |
+| 哪些 App 算"你在忙" | `listen-detect.sh` → `ENT_APPS` | 抖音/快手/B站/爱奇艺… |
 | **歌词递话的频率** | `listen-loop.sh` → `GAP_MIN` / `GAP_MAX` | 30 ~ 80 秒（随机） |
 | 一首歌最多聊几句 | `listen-loop.sh` → `MAX_PER_SONG` | 2 |
 | 放完一首多久不再放 | `music_moment.sh` → `MUSIC_COOLDOWN_MIN` | 40 分钟 |
@@ -229,7 +229,7 @@ LP=$(python3 lyric_now.py --auto)          # 报"此刻正好唱到的那句"
 "这句有没有意思"是主观的 —— 脚本挑不出来，AI 挑得出来。
 
 > 💡 **这套轮询是通用的，不只用来听歌。**
-> 她切到别的 App、电量掉到 20%、走了多少步、半夜屏还亮着 ——
+> 你切到别的 App、电量掉到 20%、走了多少步、半夜屏还亮着 ——
 > 任何"值得它主动开口"的事都能挂进同一条循环。歌词只是第一路。
 > 想接进你自己的 AI：把 `listen-loop.sh` 抄进你那个常驻轮询里，或者单独挂一个。
 
@@ -290,6 +290,8 @@ adb shell input -d <副屏id> keyevent 126  # 播放 / 暂停
 **规则跟着事件一起送到 AI 眼前** —— 这一条是整套东西的关键：
 脚本不知道"这时候该说什么"，AI 知道。所以脚本只把**事实和边界**递过去（谁放的、别问什么、别编什么），
 开口说什么、开不开口，全是 AI 的。
+
+（读法提示：上面那段里 **AI 是"你"、你是"她"**——因为那是脚本写给 AI 看的话，不是写给你的。）
 
 挂进轮询（跟 `listen-loop.sh` 并列，隔几分钟一轮就够）：
 
