@@ -1,0 +1,16 @@
+# 私人配置（歌单 id 之类），别提交
+music.env
+
+# 运行产物
+*.log
+*.mp4
+/*.png
+listen.state
+.last_play
+vd_build/
+*.class
+__pycache__/
+
+# 系统
+.DS_Store
+Thumbs.db

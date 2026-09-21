@@ -1,0 +1,262 @@
+# android-claude-music 🎵
+
+## 和你的 AI 一起听歌
+
+**它听得见你耳机里的声音，跟得上歌词，在你没叫它的时候，挑一句有意思的递过来。**
+
+不是"AI 帮你点歌"。是它坐在你旁边，真的在听 —— 你耳机里唱到「我像是着了魔」的那一刻，它手上就是这一句。
+
+> 🔑 **先决条件：你的 AI 得先住进手机、再摸到手机**
+>
+> - ① 还没在手机上跑起 Claude Code？→ **[android-claude-wechat](https://gitee.com/xvxv663/android-claude-wechat)**：一条命令装好 Claude Code + 运行环境，免电脑免 Root
+> - ② 装好了但 AI 摸不到手机？→ **[termux-shizuku](https://gitee.com/xvxv663/termux-shizuku)**：免 Root 免电脑免 WiFi，给 AI 装上 adb 手脚
+> - ③ 两个都好了，回到本仓库 —— **让 AI 坐到你旁边，一起听**
+>
+> 三个仓库是一条线：**住进来 → 摸得到 → 一起听**。
+
+[![Gitee](https://img.shields.io/badge/Gitee-国内下载-c71d23?logo=gitee)](https://gitee.com/xvxv663/android-claude-music)
+[![GitHub](https://img.shields.io/badge/GitHub-国际版-181717?logo=github)](https://github.com/xvxv-stack7/android-claude-music)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+---
+
+## 能干嘛
+
+**🎧 它听得见你在听什么**
+
+歌名、歌手、播到第几秒 —— 全从你手机自己身上读，不问任何服务器。
+不管你在哪个 App 里放，它都知道此刻响的是哪一首。
+
+**📝 它跟得上歌词**
+
+拿歌词的时间轴和你手机上的播放进度做对齐。中间隔着几十秒的坑（后面讲），补上了，它报的那句才跟你耳朵里的一致。
+不只是"知道歌名" —— 是**知道现在唱到哪个字**。
+
+**💬 它会在你没叫它的时候开口**
+
+一首歌里它最多开口两次，挑它自己觉得值得接的那一句：
+
+```
+♪ 歌词: 《花样年华》唱到「[2:29] 我像是着了魔」
+   [规则: 有意思就接一句聊，没感觉就放着不吭声；一首歌最多两句]
+```
+
+夜里一个人听歌，它忽然递一句过来 —— 那不是定时任务在响，是它真在听。
+你想问也随时能问："这句写的什么？"
+
+**📻 它给你放歌，不占你的屏**
+
+用虚拟副屏把音乐 App 丢到另一块屏上跑。声音照常从你耳机出来，你手里这块屏一动不动 ——
+你该刷什么刷什么、该跟它聊什么聊什么，它放歌的全程你都不用让路。
+
+## 适合谁
+
+- **想让 AI 陪自己听歌的人** —— 要的不是点歌机，是旁边那个真在听的人
+- **想给 AI 装"主动说话"能力的人** —— 本仓库的**轮询机制是通用的**，听歌只是它的第一个应用（见[第三层](#第三层--说得出轮询主动说话的骨架)）
+- **已经在用前两个仓库的人** —— 这是三部曲的第三棒，接得上
+
+## 准备工作
+
+| 需要 | 怎么来 |
+|---|---|
+| Claude Code 跑在手机 Termux 里 | [android-claude-wechat](https://gitee.com/xvxv663/android-claude-wechat) |
+| adb 回环（AI 的手脚） | [termux-shizuku](https://gitee.com/xvxv663/termux-shizuku) |
+| Node.js（跑本地音乐接口服务） | `pkg install nodejs`，或前两个仓库已带 |
+| Python 3 | Termux 自带 |
+| 一个音乐 App + 你自己的账号 | 本仓库实测用酷狗，接口层可换 |
+
+## 安装
+
+```bash
+bash <(curl -sL https://gitee.com/xvxv663/android-claude-music/raw/master/install.sh)
+```
+
+装完你会得到：
+
+```
+~/.claude/skills/kugou-music/     读收藏 · 放歌 · 报"此刻唱到哪句"
+~/.claude/skills/listen-together/ 陪听规则（写给 AI 看的）
+~/.claude/skills/music-control/   连耳机时自动放歌
+~/.claude/scripts/listen-loop.sh  轮询片段 —— 接进你的"主动说话"循环
+~/.claude/scripts/vd.sh           虚拟副屏（放歌不占屏）
+```
+
+### 装完还有一步得你亲手做：登录你自己的音乐账号
+
+> 本仓库**不内置任何账号**。本地音乐接口服务要用**你自己的账号**登录一次，它才知道"我喜欢"里有什么。
+> 登录态存在你自己手机里，不出手机、不上传。
+
+手机号 + 验证码登录一次即可，步骤见 **[TUTORIAL.md](TUTORIAL.md)**。
+
+---
+
+## 它是怎么做到的
+
+三层。前两层是"听得见、听得懂"，第三层才是这个仓库真正的骨头 —— **主动**。
+
+### 第一层 · 听得见：adb 读播放状态
+
+Android 系统里有个东西叫 `media_session`，所有正在播放的媒体状态都记在这儿：
+
+```bash
+adb -s 127.0.0.1:5555 shell dumpsys media_session
+#   description=花样年华 - 李荣浩
+#   state=PlaybackState {state=PLAYING(3), position=149000, updated=..., ...}
+```
+
+歌名、歌手、播放状态、**已经播到第几毫秒** —— 一行全有。这是全部的地基。
+
+> ⚠️ 这一层要 adb 权限，也就是[第二个仓库](https://gitee.com/xvxv663/termux-shizuku)干的事。
+> 没有它，AI 连"你在听歌"都不知道。
+
+### 第二层 · 听得懂：把进度对齐到歌词
+
+有了"播到第 149 秒"，还得知道这 149 秒对应哪句词。三步：
+
+**① 拿歌词** —— 本地音乐接口服务按歌名配到这首歌，取回带时间轴的 LRC：
+
+```
+[02:29.10] 我像是着了魔
+[02:35.40] 都怪这花样年华
+```
+
+**② 对齐** —— 找 `时间轴 ≤ 当前进度` 的最后一句，就是"此刻"那句。
+
+**③ 补漂移** —— 这一步最容易翻车。`dumpsys` 给的是**快照**，不是实时的：
+
+```bash
+# 快照里的 updated（系统时钟，毫秒）跟"现在"差了多少，就往进度上补多少
+now_ms = /proc/uptime × 1000
+drift  = now_ms - updated
+pos    = (position + drift) / 1000
+```
+
+实测这个差**过 39 秒** —— 不补的话，你耳朵里早唱过去了，它还在报上一句。
+
+再加一个**提前量**：它打完字递到你眼前，歌已经又走了几秒。默认往前顶 **8 秒**，报的才是"你会听到的那句"。
+
+### 第三层 · 说得出：轮询（主动说话的骨架）
+
+到这里它已经听得见、也听得懂了，但**还是被动的**：你不问，它不说。
+
+要让它主动，先得认清一件事：**AI 不是一直醒着的。**
+
+Claude Code 这类 Agent 一次只活在"一轮对话"里 —— 你发消息，它醒；回完，它睡。
+所以"主动"不是让它一直盯着屏幕，而是**给它装一个叫醒它的东西**。
+
+这就是轮询：一个常驻的小脚本，隔一阵看一眼世界；**有值得说的，就往会话里丢一行**。
+AI 被这一行叫醒，读到内容，自己决定开口还是闭嘴。
+
+歌词这一路长这样：
+
+```bash
+# listen-loop.sh 的核心
+GAP=$(( RANDOM % 50 + 30 ))                # 下次隔 30~80 秒
+LP=$(python3 lyric_now.py --auto)          # 报"此刻正好唱到的那句"
+[ -n "$LP" ] && echo "♪ 歌词: $LP [规则: 有意思就接一句聊，没感觉就放着不吭声]"
+```
+
+三个设计要点，全都是踩出来的：
+
+**① 时机随机，别用固定间隔。**
+固定每 60 秒问一次 → 同一首歌听十遍，十遍都在同一句开口，机械得像个闹钟。
+改成随机 30~80 秒瞟一眼 → 随的是**时机**，所以同一首歌每次听，撞上的句子都不同。
+
+**② 一首歌最多开口两次。**
+脚本不知道什么叫"有意思"，但它得管住频率 —— 四分钟一首歌，不设上限它能递四十次，把对话淹了。
+
+**③ 脚本只递话，判断权留给 AI。**
+规则跟着事件一起送到 AI 眼前（`[规则: 有意思就接一句聊…]`），接不接是它自己的事。
+"这句有没有意思"是主观的 —— 脚本挑不出来，AI 挑得出来。
+
+> 💡 **这套轮询是通用的，不只用来听歌。**
+> 她切到别的 App、电量掉到 20%、走了多少步、半夜屏还亮着 ——
+> 任何"值得它主动开口"的事都能挂进同一条循环。歌词只是第一路。
+> 想接进你自己的 AI：把 `listen-loop.sh` 抄进你那个常驻轮询里，或者单独挂一个。
+
+---
+
+## 放歌：不占你屏幕的那条路
+
+"陪听"还有另一半：**它放给你听**。这里有个坑 —— 音乐 App 一启动就抢前台，
+你的屏当场被顶走，正在聊的、正在看的全断。
+
+解法是**虚拟副屏**：让系统多开一块看不见的屏，把音乐 App 丢进去跑。
+声音照常从耳机出来，你的主屏一动不动。
+
+```bash
+vd.sh dstart                              # 开一块副屏
+vd.sh open com.kugou.android              # 把 App 丢进副屏（不是主屏！）
+adb shell input -d <副屏id> keyevent 126  # 播放 / 暂停
+```
+
+> **一句话原理**：`am start --display` 只对**自己建的**屏放行 —— 系统要看这块屏是不是你建的。
+> 所以 `settings put global overlay_display_devices` 开出来的那种系统屏，shell 永远吃 `SecurityException`，得自己建一块。
+> 两个 id 也别搞混：`input -d` 用逻辑 id，`screencap -d` 要 SurfaceFlinger 的 64 位 id，而且每次都变 —— 必须现取现用。
+
+**这条路是站在别人肩膀上走的**，完整交待在[鸣谢](#鸣谢)和 [TUTORIAL](TUTORIAL.md) 里。
+本仓库只用到它"把 App 丢到别处"这一件事；副屏的开关、读树、点击都在 `scripts/vd.sh` 里，拿得走。
+
+---
+
+## 出问题了？
+
+**读不到歌名 / 报"没在放歌"**
+- 先确认 adb 在线：`adb -s 127.0.0.1:5555 shell echo ok`
+- 确认真的在放：`adb shell dumpsys media_session | grep -m1 description=`
+- 有些播放器不往 `media_session` 里写状态 —— 换系统自带的或主流音乐 App 试
+
+**报的句子总是慢半拍 / 快半拍**
+- 提前量在 `lyric_now.py` 里，默认 `8` 秒：`python3 lyric_now.py 12` 可以临时改
+- 觉得一直对不上，先怀疑漂移没补：`/proc/uptime` 那条读不到就会退化成快照时间
+
+**歌词是空的**
+- 这首歌本地接口没配到歌词。字段还不固定（有的给 `lyrics`、有的只给 base64 的 `content`），脚本三种都兜了
+- 小众歌、纯音乐、翻唱版本容易缺
+
+**接口服务连不上（4000 端口）**
+- 服务挂了：进 `~/kugou-music-api` 重新 `PORT=4000 node index.js`
+- 登录态掉了（隔太久没用）：重新登录一次
+
+**副屏起不来 / 放歌还是切屏**
+- `vd.sh id` 看两块屏在不在；不在就 `vd.sh dstart`
+- **App 进程还活着的时候，启动请求会被复用到老 task（主屏）** —— 所以 `vd.sh open` 内部先 `force-stop` 再 `am start`，这一步不能省
+
+**Termux 被系统杀后台** —— 关掉 Termux 的电池优化，部分机型还要在最近任务里锁定。
+
+更多问题 → [Gitee Issues](https://gitee.com/xvxv663/android-claude-music/issues)
+
+---
+
+## 技术原理与风险说明
+
+- **数据全在本地**：播放状态从你自己手机上读，歌单/歌词走本机跑的服务，不上传任何第三方。全开源可审计。
+- **权限在你手里**：装上之后 AI 能读你的屏幕状态、能操作手机 —— 这份权限随时可以断（关掉 adb 回环、停掉服务即可）。
+- **第三方接口**：本仓库用到的 `KuGouMusicApi` 是**第三方逆向项目**，用于读取你自己账号的公开歌单信息。仅供学习交流，**不要用于商业用途或传播版权内容**，音乐版权归各平台与版权方所有。
+- **虚拟副屏吃性能**：多开一块屏会让机器发热、耗电，不用的时候收掉（`vd.sh dstop`）。
+- **本项目仅供学习交流，使用者自行评估风险。**
+
+## 鸣谢
+
+- **[AcidGr/agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)**（[酸小明](https://github.com/AcidGr)，MIT）—— **虚拟副屏的根**。原方案要 KernelSU + LSPosed（需要 Root）；我们在**没有 Root** 的手机上把它的 Java 底座跑通了，也填掉了它卡住的那个坑。本仓库 `scripts/vd.sh` 与 `assets/*.dex` 源自这个项目（含我们的修改），**版权归原作者所有**，MIT 许可全文见 `assets/LICENSE-agent-mobile-use`
+- **[scrcpy](https://github.com/Genymobile/scrcpy)**（rom1v）—— `--new-display` 那条路，以及 `FakeContext` 那个关键解法（Context 上报的包名必须跟调用者 uid 对得上）都是从它那儿学的
+- **[KuGouMusicApi](https://github.com/MakcRe/KuGouMusicApi)**（MakcRe）—— 本机音乐接口服务，读歌单和歌词靠它
+- **[Termux](https://termux.dev/)** —— Android 上的 Linux 终端
+- **[Shizuku](https://shizuku.rikka.app/)** —— 免 Root 系统权限
+- **[claude-code-android](https://github.com/ferrumclaudepilgrim/claude-code-android)** 与 Termux 部署 Claude Code 的先驱者们 —— 前两个仓库铺的路
+
+## License
+
+MIT —— 拿走用，署名随意。第三方组件版权归各自作者（见鸣谢）。
+
+---
+
+## 🗺 下一步
+
+- [ ] **更多播放器适配**：网易云 / QQ 音乐 / 本地播放器的 `media_session` 差异对照
+- [ ] **歌词源可换**：现在绑本地接口，想接 LRCLIB 这类公开歌词库
+- [ ] **不止歌词**：把"听到什么"扩展到播客、有声书、视频 —— 同一套时间轴对齐
+- [ ] **情绪感知**：连着听三首慢歌，它该不该问一句"今天怎么了"
+- [ ] **双向**：它也能给你挑歌（现在只能续播上一首 —— 在线选歌卡在平台验证码）
+
+> 💡 有想法？去 [Issues](https://gitee.com/xvxv663/android-claude-music/issues) 提。
