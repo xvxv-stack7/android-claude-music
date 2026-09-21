@@ -6,6 +6,8 @@
 
 不是"AI 帮你点歌"。是它坐在你旁边，真的在听 —— 你耳机里唱到「不然怎么会挑中我呢」的那一刻，它手上就是这一句。
 
+> 🎧 实测走 **酷狗** · 免 Root 免电脑 · AI 跑在手机 Termux 本地 · 放歌走虚拟副屏不占屏
+
 > 🔑 **先决条件：你的 AI 得先住进手机、再摸到手机**
 >
 > - ① 还没在手机上跑起 Claude Code？→ **[android-claude-wechat](https://gitee.com/xvxv663/android-claude-wechat)**：一条命令装好 Claude Code + 运行环境，免电脑免 Root
