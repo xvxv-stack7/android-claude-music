@@ -49,6 +49,9 @@
 用虚拟副屏把音乐 App 丢到另一块屏上跑。声音照常从你耳机出来，你手里这块屏一动不动 ——
 你该刷什么刷什么、该跟它聊什么聊什么，它放歌的全程你都不用让路。
 
+**而且该放的时候它自己会放** —— 你连着耳机、没在忙、时间也对，它按很低很低的概率挑中一次，
+放完才让你知道。见 → [它自己会放歌](#它自己会放歌)
+
 ## 适合谁
 
 - **想让 AI 陪自己听歌的人** —— 要的不是点歌机，是旁边那个真在听的人
@@ -74,11 +77,13 @@ bash <(curl -sL https://gitee.com/xvxv663/android-claude-music/raw/master/instal
 装完你会得到：
 
 ```
-~/.claude/skills/kugou-music/     读收藏 · 放歌 · 报"此刻唱到哪句"
-~/.claude/skills/listen-together/ 陪听规则（写给 AI 看的）
-~/.claude/skills/music-control/   连耳机时自动放歌
-~/.claude/scripts/listen-loop.sh  轮询片段 —— 接进你的"主动说话"循环
-~/.claude/scripts/vd.sh           虚拟副屏（放歌不占屏）
+~/.claude/skills/kugou-music/      读收藏 · 放歌 · 报"此刻唱到哪句"
+~/.claude/skills/listen-together/  陪听规则（写给 AI 看的）
+~/.claude/skills/music-control/    什么时候该放（判断层）
+~/.claude/scripts/listen-loop.sh   轮询：此刻唱到哪句 → 递给 AI
+~/.claude/scripts/listen-detect.sh 轮询：这会儿该不该自己放一首
+~/.claude/scripts/music_moment.sh  放一首（带 40 分钟冷却）
+~/.claude/scripts/vd.sh            虚拟副屏（放歌不占屏）
 ```
 
 ### 装完还有一步得你亲手做：登录你自己的音乐账号
@@ -199,6 +204,47 @@ adb shell input -d <副屏id> keyevent 126  # 播放 / 暂停
 
 ---
 
+## 它自己会放歌
+
+前面讲的都是"它在听"。这一节是"**它主动放**" —— 没人叫它，它自己挑时候给你放一首。
+
+`listen-detect.sh` 每跑一轮判五件事：
+
+| 判什么 | 怎么判 | 为什么 |
+|---|---|---|
+| 屏幕亮着吗 | `dumpsys power` 读 `mWakefulness` | 黑着屏放歌没意义 |
+| 在时间窗里吗 | 默认 8:00~23:00 | 半夜不吵你 |
+| 蓝牙耳机在线吗 | `dumpsys audio` 数 `bt_a2dp` | 没耳机等于外放，别放 |
+| 正在娱乐 App 里吗 | `dumpsys activity` 读前台包名 | 你正在刷视频看剧，别插一脚 |
+| **概率命中吗** | 默认 **2%** | 见下 |
+
+**为什么要概率** —— 耳机连着 ≠ 想听歌。你可能在刷视频、在开会、在等人、只是戴着没听。
+硬放会烦，所以命中率压得很低：**宁可不放**。
+
+命中之后它做两件事：**放一首**（转 `music_moment.sh` → 走副屏、不占屏，带 40 分钟冷却），
+然后**把这件事报给 AI** —— 这才是"主动说话"的另一半：
+
+```
+♪ 放歌: 花样年华 - 李荣浩 [规则: 这一首是你自己放的，不是她点的 ——
+  ①别问她"要不要听歌"，想说什么就一句，像随手放了首歌
+  ②她正忙着/刚被吵醒就当没这回事，别硬搭话
+  ③歌名照上面这行念，读不到就别提歌名，别编]
+```
+
+**规则跟着事件一起送到 AI 眼前** —— 这一条是整套东西的关键：
+脚本不知道"这时候该说什么"，AI 知道。所以脚本只把**事实和边界**递过去（谁放的、别问什么、别编什么），
+开口说什么、开不开口，全是 AI 的。
+
+挂进轮询（跟 `listen-loop.sh` 并列，隔几分钟一轮就够）：
+
+```bash
+bash ~/.claude/scripts/listen-detect.sh
+```
+
+> 想改成"只报告、放不放由 AI 定"：把脚本最后那段 `music_moment.sh` 去掉，只留 `echo`。
+
+---
+
 ## 出问题了？
 
 **读不到歌名 / 报"没在放歌"**
@@ -238,7 +284,7 @@ adb shell input -d <副屏id> keyevent 126  # 播放 / 暂停
 
 ## 鸣谢
 
-- **[AcidGr/agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)**（[酸小明](https://github.com/AcidGr)，MIT）—— **虚拟副屏的根**。原方案要 KernelSU + LSPosed（需要 Root）；我们在**没有 Root** 的手机上把它的 Java 底座跑通了，也填掉了它卡住的那个坑。本仓库 `scripts/vd.sh` 与 `assets/*.dex` 源自这个项目（含我们的修改），**版权归原作者所有**，MIT 许可全文见 `assets/LICENSE-agent-mobile-use`
+- **[AcidGr/agent-mobile-use](https://github.com/AcidGr/agent-mobile-use)**（[酸小明](https://github.com/AcidGr)，MIT）—— **虚拟副屏的根**。我们把它搬到了**没有 root** 的手机上跑（走 Shizuku + adb 这条路），也填掉了搬的过程里卡住的那个坑。本仓库 `scripts/vd.sh` 与 `assets/*.dex` 源自这个项目（含我们的修改），**版权归原作者所有**，MIT 许可全文见 `assets/LICENSE-agent-mobile-use`。<br>**项目在持续更新，请以原仓库为准。**
 - **[scrcpy](https://github.com/Genymobile/scrcpy)**（rom1v）—— `--new-display` 那条路，以及 `FakeContext` 那个关键解法（Context 上报的包名必须跟调用者 uid 对得上）都是从它那儿学的
 - **[KuGouMusicApi](https://github.com/MakcRe/KuGouMusicApi)**（MakcRe）—— 本机音乐接口服务，读歌单和歌词靠它
 - **[Termux](https://termux.dev/)** —— Android 上的 Linux 终端

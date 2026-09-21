@@ -159,6 +159,10 @@ sleep "$GAP"
 > **为什么是这三个数**：随机（不然永远同一句）、30~80 秒（一首歌大约能瞟 3~5 次）、一首歌最多两句（多了吵）——
 > 三个都是踩出来的，改之前先读 [README 第三层](README.md#第三层--说得出轮询主动说话的骨架)。
 
+> **还想让它自己放歌？** 另一路轮询 `listen-detect.sh` 管这个 ——
+> 耳机在线 + 时间对 + 不在娱乐 App 里，按概率替你放一首（走副屏、不占屏），放完把事件递给 AI。
+> 详见 [README「它自己会放歌」](README.md#它自己会放歌)。跟 `listen-loop.sh` 并列挂就行。
+
 ### 5.3 让它跟你的 AI 说得上话
 
 技能目录里的 `listen-together/SKILL.md` 是**写给 AI 看的规则**：什么算"有意思"、什么时候该闭嘴、
@@ -220,7 +224,7 @@ javac -source 8 -target 8 -bootclasspath android.jar -d vd_build src/com/agent/*
 d8 --output vd_build vd_build/com/agent/*.class
 ```
 
-**改的是什么**：原项目的 `DaemonMain` 建屏时报
+**改的是什么**：把 `DaemonMain` 搬进无 root 环境时，建屏报
 `SecurityException: packageName must match the calling uid` ——
 根因是 `DisplayManager` 拿 `Context.getOpPackageName()` 上报，而 `ActivityThread.systemMain().getSystemContext()`
 上报的包名是 `"android"`，跟 shell 的 uid（2000 → `com.android.shell`）对不上。
@@ -242,7 +246,8 @@ python3 ~/.claude/scripts/lyric_now.py 12       # 提前量 12 秒
 python3 ~/.claude/scripts/lyric_now.py --auto   # 单行，给轮询用（暂停时静默）
 
 # 轮询
-bash ~/.claude/scripts/listen-loop.sh
+bash ~/.claude/scripts/listen-loop.sh      # 此刻唱到哪句 → 递给 AI
+bash ~/.claude/scripts/listen-detect.sh    # 这会儿该不该自己放一首（命中才出声）
 
 # 读收藏 / 放歌
 bash ~/.claude/scripts/kugou.sh list

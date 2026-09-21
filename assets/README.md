@@ -7,7 +7,7 @@
 
 | 文件 | 用途 | 本项目的改动 |
 |---|---|---|
-| `agent_vd_fixed.dex` | 建一块虚拟副屏（`DaemonMain`） | **有** —— 修了免 root 下的 `SecurityException: packageName must match the calling uid`；源码见 `../src/com/agent/DaemonMain.java` |
+| `agent_vd_fixed.dex` | 建一块虚拟副屏（`DaemonMain`） | **有** —— 搬进无 root 环境时撞上 `SecurityException: packageName must match the calling uid`，修法见 `../src/com/agent/DaemonMain.java` |
 | `agent_tools.dex` | 副屏上读控件树 / 点按 / 灌字（`ToolMain`） | 无 |
 
 安装脚本会把它们推到 `/data/local/tmp/agent-mobile-use/` ——

@@ -64,7 +64,7 @@ ok "技能 → $DST_SKILLS/（kugou-music / listen-together / music-control）"
 
 cp "$SRC"/scripts/*.sh "$SRC"/scripts/*.py "$DST_SCRIPTS/" 2>/dev/null
 chmod +x "$DST_SCRIPTS"/*.sh 2>/dev/null
-ok "脚本 → $DST_SCRIPTS/（lyric_now.py / listen-loop.sh / kugou.sh / vd.sh / music_moment.sh）"
+ok "脚本 → $DST_SCRIPTS/（lyric_now.py / listen-loop.sh / listen-detect.sh / kugou.sh / vd.sh / music_moment.sh）"
 
 if [ -f "$DST_SCRIPTS/music.env" ]; then
   ok "配置已存在，没动它：$DST_SCRIPTS/music.env"
