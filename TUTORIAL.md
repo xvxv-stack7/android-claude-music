@@ -6,7 +6,7 @@
 >
 > ```bash
 > claude --version                     # AI 住进来了没（没有→ android-claude-wechat）
-> adb -s 127.0.0.1:5555 shell echo ok  # AI 摸得到手机没（不通→ termux-shizuku）
+> adb -s 127.0.0.1:5555 shell echo ok  # AI 摸得到手机没（不通→ android-claude-agent）
 > ```
 
 ---

@@ -41,12 +41,12 @@ say "环境自检"
 command -v python3 >/dev/null && ok "python3 $(python3 -V 2>&1 | cut -d' ' -f2)" || { warn "没有 python3"; exit 1; }
 command -v node    >/dev/null && ok "node $(node -v)" || warn "没有 node —— 装: pkg install nodejs（跑接口服务要用）"
 command -v git     >/dev/null && ok "git" || warn "没有 git —— 装: pkg install git"
-command -v adb     >/dev/null && ok "adb" || warn "没有 adb —— 见 termux-shizuku 仓库"
+command -v adb     >/dev/null && ok "adb" || warn "没有 adb —— 见 android-claude-agent 仓库"
 if adb -s "$SERIAL" shell echo ok >/dev/null 2>&1; then
   ok "adb 回环在线（$SERIAL）"
   ADB_OK=1
 else
-  warn "adb 回环不通 —— 副屏放歌先装不了,先看 termux-shizuku 仓库"
+  warn "adb 回环不通 —— 副屏放歌先装不了,先看 android-claude-agent 仓库"
   ADB_OK=0
 fi
 say ""

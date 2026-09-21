@@ -19,7 +19,7 @@
 > 🔑 **先决条件：你的 AI 得先住进手机、再摸到手机**
 >
 > - ① 还没在手机上跑起 Claude Code？→ **[android-claude-wechat](https://gitee.com/xvxv663/android-claude-wechat)**：一条命令装好 Claude Code + 运行环境，免电脑免 Root
-> - ② 装好了但 AI 摸不到手机？→ **[termux-shizuku](https://gitee.com/xvxv663/termux-shizuku)**：免 Root 免电脑免 WiFi，给 AI 装上 adb 手脚
+> - ② 装好了但 AI 摸不到手机？→ **[android-claude-agent](https://gitee.com/xvxv663/android-claude-agent)**：免 Root 免电脑免 WiFi，给 AI 装上 adb 手脚
 > - ③ 两个都好了，回到本仓库 —— **让 AI 坐到你旁边，一起听**
 >
 > 三个仓库是一条线：**住进来 → 摸得到 → 一起听**。
@@ -74,7 +74,7 @@
 | 需要 | 怎么来 |
 |---|---|
 | Claude Code 跑在手机 Termux 里 | [android-claude-wechat](https://gitee.com/xvxv663/android-claude-wechat) |
-| adb 回环（AI 的手脚） | [termux-shizuku](https://gitee.com/xvxv663/termux-shizuku) |
+| adb 回环（AI 的手脚） | [android-claude-agent](https://gitee.com/xvxv663/android-claude-agent) |
 | Node.js（跑本地音乐接口服务） | `pkg install nodejs`，或前两个仓库已带 |
 | Python 3 | Termux 自带 |
 | 一个音乐 App + 你自己的账号 | 实测走**酷狗**。换平台要另找**对应的**本地接口服务（见 [第一步](TUTORIAL.md#第一步--装本地音乐接口服务)） |
@@ -165,7 +165,7 @@ adb -s 127.0.0.1:5555 shell dumpsys media_session
 
 歌名、歌手、播放状态、**已经播到第几毫秒** —— 一行全有。这是全部的地基。
 
-> ⚠️ 这一层要 adb 权限，也就是[第二个仓库](https://gitee.com/xvxv663/termux-shizuku)干的事。
+> ⚠️ 这一层要 adb 权限，也就是[第二个仓库](https://gitee.com/xvxv663/android-claude-agent)干的事。
 > 没有它，AI 连"你在听歌"都不知道。
 
 ### 第二层 · 听得懂：把进度对齐到歌词

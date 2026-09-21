@@ -107,5 +107,5 @@ python3 ~/.claude/scripts/lyric_now.py
 ## 依赖
 
 - `~/kugou-music-api` 服务在 4000 活着（挂了：`PORT=4000 node index.js`）
-- adb 回环在线（第二个仓库 `termux-shizuku`）
+- adb 回环在线（第二个仓库 `android-claude-agent`）
 - `~/.claude/scripts/vd.sh`（虚拟副屏，源自 AcidGr/agent-mobile-use）
