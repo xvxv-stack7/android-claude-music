@@ -88,7 +88,7 @@ bash <(curl -sL https://gitee.com/xvxv663/android-claude-music/raw/master/instal
 装完你会得到：
 
 ```
-~/.claude/skills/kugou-music/      读收藏 · 放歌 · 报"此刻唱到哪句"
+~/.claude/skills/kugou-music/      读收藏 · 自己挑歌放 · 报"此刻唱到哪句"
 ~/.claude/skills/listen-together/  陪听规则（写给 AI 看的）
 ~/.claude/skills/music-control/    什么时候该放（判断层）
 ~/.claude/scripts/listen-loop.sh   轮询：此刻唱到哪句 → 递给 AI
